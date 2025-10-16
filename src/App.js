@@ -20,6 +20,11 @@ class App {
         // 커스텀 구분자 추출 (// 다음의 문자들, 공백 제거)
         const customDelimiterChars = customDelimiterPart.replace(/^\/\//, '').trim();
         
+        // 숫자 구분자 제한 검증
+        if(/[0-9]/.test(customDelimiterChars)) {
+          throw new Error("[ERROR] 숫자는 구분자로 사용할 수 없습니다.");
+        }
+        
         // 단일 문자 커스텀 구분자
         if(customDelimiterChars.length === 1) {
           delimiters.push(customDelimiterChars);
@@ -67,13 +72,18 @@ class App {
       const numberStr = trimmedNum.replace(/\s+/g, '');
       const number = Number(numberStr);
 
+      // 숫자 외 문자열 입력 검증
+      if(isNaN(number)) {
+        throw new Error("[ERROR] 기본 구분자(, 또는 :) 또는 커스텀 구분자가 아닌 문자는 입력할 수 없습니다.");
+      }
+      
       // 음수 입력 검증
       if(number < 0) {
         throw new Error("[ERROR] 음수는 입력할 수 없습니다.");
       }
       
       // 양의 정수 검증
-      if(isNaN(number) || !Number.isInteger(number) || number <= 0) {
+      if(!Number.isInteger(number) || number <= 0) {
         throw new Error("[ERROR] 잘못된 입력입니다. 양의 정수와 구분자(, 또는 : 또는 커스텀 구분자)로 구성된 문자열을 입력해주세요.");
       } 
       
