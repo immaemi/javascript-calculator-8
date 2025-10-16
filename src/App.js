@@ -1,16 +1,42 @@
 import { Console } from "@woowacourse/mission-utils";
 
 class App {
+  _extractCustomDelimiter(text) {
+    let delimiters = [",", ":"];
+    let numbersString = text.trim();
+
+    // 커스텀 구분자 패턴 확인: "//구분자\n숫자들" (문자열에 \n 포함)
+    if(text.startsWith("//") && (text.includes("\\n"))) {
+      const parts = text.split(/\\n|\n/);
+      if(parts.length >= 2) {
+        const customDelimiterPart = parts[0]; // "// ;"
+        const numbersPart = parts[1]; // " 1 ;2; 3"
+        
+        // 커스텀 구분자 추출 (// 다음의 문자들, 공백 제거)
+        const customDelimiterChars = customDelimiterPart.slice(2).trim();
+        
+        // 단일 문자 커스텀 구분자만 처리
+        if(customDelimiterChars.length === 1) {
+          delimiters.push(customDelimiterChars);
+        }
+        
+        numbersString = numbersPart.trim();
+      }
+    }
+
+    return { delimiters, numbersString };
+  }
+
   calculate(text) {
     // 빈 문자열 예외 처리
     if(text === null || text.trim() === "") {
       return 0;
     }
-    
-    const trimmedText = text.trim();
-    
-    // 기본 구분자(, 또는 :)로 분리된 숫자 덧셈
-    const numbers = trimmedText.split(/[,:]/);
+    const { delimiters, numbersString } = this._extractCustomDelimiter(text);
+
+    // 정규식 특수문자 이스케이프 처리
+    const escapedDelimiters = delimiters.map(d => d.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('');
+    const numbers = numbersString.split(new RegExp(`[${escapedDelimiters}]`));
     let sum = 0;
     
     for(let numStr of numbers) {
@@ -36,14 +62,13 @@ class App {
   }
 
   async run() {
-    Console.readLine('덧셈할 문자열을 입력해 주세요.\n', (inputString) => {
-      try {
-        let result = this.calculate(inputString);
-        Console.print(`결과: ${result}`);
-      } catch (error) {
-        Console.print(`[ERROR] ${error.message}`);
-      }
-    });
+    try {
+      const input = await Console.readLineAsync("덧셈할 문자열을 입력해 주세요.\n");
+      const result = this.calculate(input);
+      Console.print(`결과 : ${result}`);
+    } catch (error) {
+      Console.print(`[ERROR] ${error.message}`);
+    }
   }
 }
 export default App;
