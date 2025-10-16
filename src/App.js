@@ -77,14 +77,19 @@ class App {
         throw new Error("[ERROR] 기본 구분자(, 또는 :) 또는 커스텀 구분자가 아닌 문자는 입력할 수 없습니다.");
       }
       
+      // 0 입력 검증
+      if(number === 0) {
+        throw new Error("[ERROR] 0은 입력할 수 없습니다.");
+      }
+      
       // 음수 입력 검증
       if(number < 0) {
         throw new Error("[ERROR] 음수는 입력할 수 없습니다.");
       }
       
-      // 양의 정수 검증
-      if(!Number.isInteger(number) || number <= 0) {
-        throw new Error("[ERROR] 잘못된 입력입니다. 양의 정수와 구분자(, 또는 : 또는 커스텀 구분자)로 구성된 문자열을 입력해주세요.");
+      // 소수 입력 검증
+      if(!Number.isInteger(number)) {
+        throw new Error("[ERROR] 소수는 입력할 수 없습니다.");
       } 
       
       sum += number;
